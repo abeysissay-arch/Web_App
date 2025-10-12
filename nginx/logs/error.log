@@ -1,0 +1,26 @@
+2025/10/03 16:16:38 [error] 17200#25064: *1 CreateFile() "C:\nginx-1.28.0/html/favicon.ico" failed (2: The system cannot find the file specified), client: 127.0.0.1, server: localhost, request: "GET /favicon.ico HTTP/1.1", host: "localhost", referrer: "http://localhost/"
+2025/10/04 14:57:59 [error] 8100#21360: *1 CreateFile() "C:\nginx-1.28.0/html/favicon.ico" failed (2: The system cannot find the file specified), client: 127.0.0.1, server: localhost, request: "GET /favicon.ico HTTP/1.1", host: "localhost", referrer: "http://localhost/"
+2025/10/04 15:01:18 [error] 8100#21360: *4 CreateFile() "C:\nginx-1.28.0/html/location" failed (2: The system cannot find the file specified), client: 127.0.0.1, server: localhost, request: "GET /location HTTP/1.1", host: "localhost"
+2025/10/04 15:01:38 [error] 8100#21360: *4 CreateFile() "C:\nginx-1.28.0/html/api/courses" failed (3: The system cannot find the path specified), client: 127.0.0.1, server: localhost, request: "GET /api/courses HTTP/1.1", host: "localhost"
+2025/10/05 20:03:14 [notice] 16296#10468: signal process started
+2025/10/05 20:38:55 [error] 29532#15136: *7 CreateFile() "C:\Users\metmt\Desktop\ELearning\nginx/html/test.html" failed (2: The system cannot find the file specified), client: 127.0.0.1, server: localhost, request: "GET /test.html HTTP/1.1", host: "localhost"
+2025/10/05 20:39:36 [notice] 20608#15396: signal process started
+2025/10/05 20:40:10 [error] 29532#15136: *9 CreateFile() "C:\Users\metmt\Desktop\ELearning\nginx/html/test.html" failed (2: The system cannot find the file specified), client: 127.0.0.1, server: localhost, request: "GET /test.html HTTP/1.1", host: "localhost"
+2025/10/05 20:54:58 [notice] 26120#16312: signal process started
+2025/10/05 21:11:08 [notice] 11464#23188: signal process started
+2025/10/05 21:21:29 [error] 16820#25172: *4 CreateFile() "C:/Users/metmt/Desktop/ELearning/phpapp/index.html" failed (2: The system cannot find the file specified), client: 127.0.0.1, server: localhost, request: "GET /favicon.ico HTTP/1.1", host: "localhost", referrer: "http://localhost/test.html"
+2025/10/05 21:23:03 [notice] 26584#16768: signal process started
+2025/10/05 21:23:42 [error] 7680#24640: *2 connect() failed (10061: No connection could be made because the target machine actively refused it) while connecting to upstream, client: 127.0.0.1, server: localhost, request: "GET /index.php HTTP/1.1", upstream: "fastcgi://127.0.0.1:9000", host: "localhost"
+2025/10/05 21:24:45 [error] 7680#24640: *2 connect() failed (10061: No connection could be made because the target machine actively refused it) while connecting to upstream, client: 127.0.0.1, server: localhost, request: "GET /index.php HTTP/1.1", upstream: "fastcgi://127.0.0.1:9000", host: "localhost"
+2025/10/05 21:24:49 [error] 7680#24640: *5 connect() failed (10061: No connection could be made because the target machine actively refused it) while connecting to upstream, client: 127.0.0.1, server: localhost, request: "GET /index.php HTTP/1.1", upstream: "fastcgi://127.0.0.1:9000", host: "localhost"
+2025/10/05 21:24:52 [error] 7680#24640: *5 connect() failed (10061: No connection could be made because the target machine actively refused it) while connecting to upstream, client: 127.0.0.1, server: localhost, request: "GET /index.php HTTP/1.1", upstream: "fastcgi://127.0.0.1:9000", host: "localhost"
+2025/10/05 21:25:08 [error] 7680#24640: *9 connect() failed (10061: No connection could be made because the target machine actively refused it) while connecting to upstream, client: 127.0.0.1, server: localhost, request: "GET /index.php HTTP/1.1", upstream: "fastcgi://127.0.0.1:9000", host: "localhost"
+2025/10/05 21:33:50 [notice] 3572#14824: signal process started
+2025/10/06 20:04:58 [error] 16236#19200: *4 directory index of "C:/Users/metmt/Desktop/ELearning/phpapp/" is forbidden, client: 127.0.0.1, server: localhost, request: "GET / HTTP/1.1", host: "localhost"
+2025/10/06 20:04:59 [error] 16236#19200: *4 directory index of "C:/Users/metmt/Desktop/ELearning/phpapp/" is forbidden, client: 127.0.0.1, server: localhost, request: "GET / HTTP/1.1", host: "localhost"
+2025/10/06 20:05:14 [error] 16236#19200: *4 directory index of "C:/Users/metmt/Desktop/ELearning/phpapp/" is forbidden, client: 127.0.0.1, server: localhost, request: "GET / HTTP/1.1", host: "localhost"
+2025/10/06 20:16:08 [error] 16236#19200: *5 directory index of "C:/Users/metmt/Desktop/ELearning/phpapp/" is forbidden, client: 127.0.0.1, server: localhost, request: "GET / HTTP/1.1", host: "localhost"
+2025/10/06 20:16:10 [error] 16236#19200: *5 directory index of "C:/Users/metmt/Desktop/ELearning/phpapp/" is forbidden, client: 127.0.0.1, server: localhost, request: "GET / HTTP/1.1", host: "localhost"
+2025/10/06 20:16:12 [error] 16236#19200: *5 directory index of "C:/Users/metmt/Desktop/ELearning/phpapp/" is forbidden, client: 127.0.0.1, server: localhost, request: "GET / HTTP/1.1", host: "localhost"
+2025/10/06 20:16:14 [error] 16236#19200: *5 directory index of "C:/Users/metmt/Desktop/ELearning/phpapp/" is forbidden, client: 127.0.0.1, server: localhost, request: "GET / HTTP/1.1", host: "localhost"
+2025/10/06 20:18:46 [notice] 1196#18420: signal process started
