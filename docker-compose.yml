@@ -1,0 +1,72 @@
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: elearning-mysql
+    env_file:
+      - .env
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - elearning-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  # Node.js API
+  nodejs:
+    build: ./nodejsapp
+    container_name: elearning-nodejs
+    ports:
+      - "3000:3000"
+    environment:
+      - DOCKER_ENV=true
+      - DB_HOST=mysql
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_PORT=3306
+      - NODEJS_API_URL=http://nodejs:3000
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - elearning-network
+    volumes:
+      - ./nodejsapp:/app
+      - /app/node_modules
+  
+  # PHP Application
+  php:
+    image: php:8.2-apache
+    container_name: elearning-php
+    ports:
+      - "8000:80"
+    volumes:
+      - ./phpapp:/var/www/html
+    env_file:
+      - .env
+    environment:
+      - DOCKER_ENV=true
+      - NODEJS_API_URL=http://nodejs:3000
+    depends_on:
+      nodejs:
+        condition: service_healthy
+    networks:
+      - elearning-network
+
+volumes:
+  mysql_data:
+
+networks:
+  elearning-network:
+    driver: bridge

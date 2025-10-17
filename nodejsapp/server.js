@@ -3,42 +3,91 @@ const express = require('express');
 const cors = require('cors');
 const mysql = require('mysql2');
 
-
 const app = express();
-const PORT = 3000;
+const PORT = process.env.NODEJS_PORT || 3000;
+
+// Detect environment
+const isDocker = process.env.DOCKER_ENV === 'true' || process.env.DB_HOST === 'mysql';
+const environment = isDocker ? 'Docker' : 'Local';
+
+console.log(`🚀 Starting eLearning API in ${environment} environment`);
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 
+// MySQL connection with both Docker and local support
+const dbConfig = {
+  host: process.env.DB_HOST || 'localhost',
+  user: process.env.MYSQL_USER,
+  password: process.env.MYSQL_PASSWORD,
+  database: process.env.MYSQL_DATABASE || 'elearning',
+  port: process.env.MYSQL_PORT || 3307,
+  connectTimeout: 60000,
+  reconnect: true,
+  acquireTimeout: 60000,
+  timeout: 60000
+};
 
-const db = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  port: process.env.DB_PORT
-});
+console.log('🔧 Database Configuration:');
+console.log('   Host:', dbConfig.host);
+console.log('   Database:', dbConfig.database);
+console.log('   User:', dbConfig.user);
+console.log('   Port:', dbConfig.port);
 
-// Connect to MySQL
-db.connect((err) => {
+const db = mysql.createConnection(dbConfig);
+
+// Connect to MySQL with retry logic
+const connectWithRetry = (retryCount = 0) => {
+  const maxRetries = isDocker ? 10 : 3;
+  const retryDelay = isDocker ? 5000 : 2000;
+  
+  db.connect((err) => {
     if (err) {
-        console.error('❌ MySQL connection failed:', err.message);
-        console.log('💡 Make sure MySQL is running on localhost:3306');
-        return;
+      console.error(`❌ MySQL connection failed (attempt ${retryCount + 1}/${maxRetries}):`, err.message);
+      
+      if (retryCount < maxRetries) {
+        console.log(`🔄 Retrying in ${retryDelay/1000} seconds...`);
+        setTimeout(() => connectWithRetry(retryCount + 1), retryDelay);
+      } else {
+        console.error('💥 Maximum connection retries reached. Exiting...');
+        process.exit(1);
+      }
+    } else {
+      console.log('✅ Connected to MySQL database');
     }
-    console.log('✅ Connected to MySQL database');
+  });
+};
+
+connectWithRetry();
+
+// Handle database disconnections
+db.on('error', (err) => {
+  console.error('❌ Database error:', err);
+  if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+    console.log('🔄 Reconnecting to database...');
+    connectWithRetry();
+  } else {
+    throw err;
+  }
 });
 
 // Routes
 app.get('/', (req, res) => {
     res.json({ 
         message: 'eLearning API Server with MySQL is running!',
+        environment: environment,
+        database: {
+            host: dbConfig.host,
+            name: dbConfig.database,
+            user: dbConfig.user
+        },
         endpoints: {
             courses: '/api/courses',
             courseById: '/api/courses/:id',
             users: '/api/users',
-            enrollments: '/api/enrollments'
+            enrollments: '/api/enrollments',
+            health: '/health'
         }
     });
 });
@@ -141,20 +190,21 @@ app.get('/health', (req, res) => {
             return res.status(500).json({ 
                 status: 'ERROR', 
                 database: 'DISCONNECTED',
-                error: err.message 
+                error: err.message,
+                environment: environment
             });
         }
         
         res.json({ 
             status: 'OK', 
             database: 'CONNECTED',
-            timestamp: new Date().toISOString() 
+            timestamp: new Date().toISOString(),
+            environment: environment
         });
     });
 });
 
-// Add this with your other routes (after the courses routes)
-// Fixed enrollment endpoint using MySQL
+// Enrollment endpoint
 app.post('/api/enroll', (req, res) => {
     console.log('Enrollment request received:', req.body);
     
@@ -261,15 +311,60 @@ function createEnrollment(userId, courseId, res, courseTitle, studentName, stude
     });
 }
 
+// Error handling middleware
+app.use((err, req, res, next) => {
+    console.error('Unhandled error:', err);
+    res.status(500).json({ 
+        success: false,
+        error: 'Internal server error',
+        environment: environment
+    });
+});
+
+// 404 handler
+app.use((req, res) => {
+    res.status(404).json({ 
+        success: false,
+        error: 'Endpoint not found',
+        availableEndpoints: {
+            courses: '/api/courses',
+            users: '/api/users',
+            enrollments: '/api/enrollments',
+            health: '/health'
+        }
+    });
+});
+
 // Start server
 app.listen(PORT, () => {
     console.log(`🎯 Node.js API Server running at http://localhost:${PORT}`);
-    console.log(`🗄️  Connected to MySQL database: elearning`);
+    console.log(`🌍 Environment: ${environment}`);
+    console.log(`🗄️  Database: ${dbConfig.database} @ ${dbConfig.host}:${dbConfig.port}`);
     console.log(`📚 Available endpoints:`);
     console.log(`   GET /api/courses`);
     console.log(`   GET /api/courses/:id`);
     console.log(`   GET /api/users`);
     console.log(`   GET /api/enrollments`);
     console.log(`   POST /api/courses`);
+    console.log(`   POST /api/enroll`);
     console.log(`   GET /health`);
+});
+
+// Graceful shutdown
+process.on('SIGINT', () => {
+    console.log('\n🛑 Shutting down gracefully...');
+    db.end((err) => {
+        if (err) {
+            console.error('Error closing database connection:', err);
+        } else {
+            console.log('✅ Database connection closed');
+        }
+        process.exit(0);
+    });
+});
+
+process.on('SIGTERM', () => {
+    console.log('\n🛑 Received SIGTERM, shutting down...');
+    db.end();
+    process.exit(0);
 });

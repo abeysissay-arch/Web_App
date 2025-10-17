@@ -56,7 +56,8 @@
         // Fetch courses from Node.js API
         async function loadCourses() {
             try {
-                const response = await fetch('http://localhost:3000/api/courses');
+                const response = await fetch('http://localhost:3000/api/courses');// Use relative path - will be proxied through PHP or use same origin
+                //const response = await fetch('/api/proxy?endpoint=/api/courses');
                 const courses = await response.json();
                 
                 const coursesContainer = document.getElementById('courses');

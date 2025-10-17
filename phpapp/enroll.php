@@ -1,8 +1,14 @@
 <?php
 header('Content-Type: application/json');
 
+// Detect environment and set API URL
+$isDocker = getenv('DOCKER_ENV') === 'true';
+$nodejs_api_url = $isDocker ? 'http://nodejs:3000' : 'http://localhost:3000';
+
+// Allow override from environment variable
+$nodejs_api_url = getenv('NODEJS_API_URL') ?: $nodejs_api_url;
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Get the raw POST data
     $input = json_decode(file_get_contents('php://input'), true);
     
     $courseId = $input['courseId'] ?? null;
@@ -14,7 +20,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
     
-    // Prepare data to send to Node.js API
     $enrollmentData = [
         'courseId' => (int)$courseId,
         'studentName' => $studentName,
@@ -23,7 +28,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     $jsonData = json_encode($enrollmentData);
     
-    // Use file_get_contents
     $options = [
         'http' => [
             'header'  => "Content-Type: application/json\r\n" .
@@ -36,30 +40,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     ];
     
     $context = stream_context_create($options);
-    $response = file_get_contents('http://localhost:3000/api/enroll', false, $context);
+    
+    $response = file_get_contents($nodejs_api_url . '/api/enroll', false, $context);
     
     if ($response === FALSE) {
         $error = error_get_last();
         echo json_encode([
             'success' => false, 
-            'error' => 'Cannot connect to server: ' . $error['message']
+            'error' => 'Cannot connect to server: ' . ($error['message'] ?? 'Unknown error'),
+            'debug' => ['api_url' => $nodejs_api_url]
         ]);
     } else {
-        // Pass through the Node.js response directly
-        $result = json_decode($response, true);
-        
-        // Make sure we have the expected response format
-        if (isset($result['success']) && $result['success'] === true) {
-            echo json_encode([
-                'success' => true,
-                'message' => $result['message'] ?? 'Enrollment successful!'
-            ]);
-        } else {
-            echo json_encode([
-                'success' => false,
-                'error' => $result['error'] ?? 'Enrollment failed'
-            ]);
-        }
+        echo $response;
     }
 } else {
     echo json_encode(['success' => false, 'error' => 'Method not allowed']);

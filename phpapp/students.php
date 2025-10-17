@@ -29,6 +29,7 @@
         async function loadEnrollments() {
             try {
                 const response = await fetch('http://localhost:3000/api/enrollments');
+                //const response = await fetch('/api/proxy?endpoint=/api/courses');
                 const enrollments = await response.json();
                 
                 const container = document.getElementById('enrollments');
